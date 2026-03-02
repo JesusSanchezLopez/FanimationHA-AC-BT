@@ -1,4 +1,4 @@
-# FanimationHA
+# FanimationHA-AC-BT
 
 [Home Assistant](https://www.home-assistant.io/) HACS custom component for **local Bluetooth control** of Fanimation ceiling fans using the BTCR9 FanSync Bluetooth receiver. No cloud, no app dependency. Includes the fully reverse-engineered BLE protocol and diagnostic tools.
 
@@ -21,7 +21,7 @@ The BTCR9 BLE protocol has been fully reverse-engineered and verified against re
 
 1. Open HACS in your Home Assistant instance
 2. Click the three dots menu → **Custom repositories**
-3. Add `https://github.com/sumgup0/FanimationHA` as an **Integration**
+3. Add `https://github.com/sumgup0/FanimationHA-AC-BT` as an **Integration**
 4. Search for "Fanimation" in HACS and install it
 5. Restart Home Assistant
 6. The fan should be auto-discovered via Bluetooth. If not, go to **Settings → Devices & Services → Add Integration → Fanimation BLE Ceiling Fan** and enter the MAC address manually.
@@ -92,7 +92,7 @@ Other Fanimation FanSync Bluetooth models likely share the same protocol but hav
 
 ## Project History
 
-This project is forked from [toddhutch/SimpleFanController](https://github.com/toddhutch/SimpleFanController), which targeted DC Bluetooth fans using Java/TinyB. The original code is preserved in `legacy/`. This fork shifts to Python/bleak and targets the BTCR9 AC motor variant with a Home Assistant integration as the end goal.
+Originally inspired by [toddhutch/SimpleFanController](https://github.com/toddhutch/SimpleFanController), which targeted DC Bluetooth fans using Java/TinyB. The original code is preserved in `legacy/` for reference. This project is a ground-up rewrite in Python/bleak targeting the BTCR9 AC motor variant as a Home Assistant integration.
 
 ## License
 
