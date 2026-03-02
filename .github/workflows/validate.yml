@@ -32,5 +32,3 @@ jobs:
         uses: hacs/action@main
         with:
           category: integration
-          # Remove after home-assistant/brands#9903 is merged
-          ignore: brands
