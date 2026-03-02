@@ -32,6 +32,5 @@ jobs:
         uses: hacs/action@main
         with:
           category: integration
-          # Remove 'ignore: brands' after brand images are submitted
-          # to the home-assistant/brands repository
+          # Remove after home-assistant/brands#9903 is merged
           ignore: brands
