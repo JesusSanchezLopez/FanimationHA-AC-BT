@@ -48,5 +48,25 @@ POLL_SLOW = 300
 POLL_FAST = 1
 POLL_FAST_CYCLES = 3
 
-# Connection
-MAX_CONNECTION_FAILURES = 3
+# Options flow keys
+CONF_DEFAULT_SPEED = "default_speed"
+CONF_DEFAULT_BRIGHTNESS = "default_brightness"
+CONF_NOTIFY_ON_DISCONNECT = "notify_on_disconnect"
+CONF_UNAVAILABLE_THRESHOLD = "unavailable_threshold"
+
+# Option defaults
+DEFAULT_SPEED_LAST_USED = "last_used"
+DEFAULT_SPEED_LOW = "low"
+DEFAULT_SPEED_MEDIUM = "medium"
+DEFAULT_SPEED_HIGH = "high"
+DEFAULT_BRIGHTNESS_LAST_USED = 0
+DEFAULT_NOTIFY_ON_DISCONNECT = True
+DEFAULT_UNAVAILABLE_THRESHOLD = 12
+MAX_UNAVAILABLE_THRESHOLD = 2016  # ~1 week at 300s polling
+
+# Speed option → protocol speed mapping
+SPEED_OPTION_MAP: dict[str, int] = {
+    DEFAULT_SPEED_LOW: SPEED_LOW,
+    DEFAULT_SPEED_MEDIUM: SPEED_MED,
+    DEFAULT_SPEED_HIGH: SPEED_HIGH,
+}
