@@ -14,11 +14,14 @@ from homeassistant.util.percentage import (
 
 from . import FanimationConfigEntry
 from .const import (
+    CONF_DEFAULT_SPEED,
+    DEFAULT_SPEED_LAST_USED,
     SPEED_COUNT,
     SPEED_HIGH,
     SPEED_LOW,
     SPEED_MED,
     SPEED_OFF,
+    SPEED_OPTION_MAP,
 )
 from .coordinator import FanimationCoordinator
 from .entity import FanimationEntity
@@ -73,9 +76,9 @@ class FanimationFan(FanimationEntity, FanEntity):
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         """Return extra state attributes."""
-        return {
-            "rf_remote_sync": "State is verified before every command — RF remote changes are always respected",
-        }
+        attrs = super().extra_state_attributes
+        attrs["rf_remote_sync"] = "State is verified before every command — RF remote changes are always respected"
+        return attrs
 
     async def async_turn_on(
         self,
@@ -86,7 +89,19 @@ class FanimationFan(FanimationEntity, FanEntity):
         """Turn on the fan."""
         if percentage is not None:
             await self.async_set_percentage(percentage)
+            return
+
+        # Check for user-configured fixed default speed
+        default_speed = DEFAULT_SPEED_LAST_USED
+        if self.coordinator.config_entry and self.coordinator.config_entry.options:
+            default_speed = self.coordinator.config_entry.options.get(
+                CONF_DEFAULT_SPEED, DEFAULT_SPEED_LAST_USED
+            )
+
+        if default_speed in SPEED_OPTION_MAP:
+            await self._async_set_speed(SPEED_OPTION_MAP[default_speed])
         else:
+            # "last_used" or unrecognized — use last known speed
             await self._async_set_speed(self._last_speed)
 
     async def async_turn_off(self, **kwargs: Any) -> None:

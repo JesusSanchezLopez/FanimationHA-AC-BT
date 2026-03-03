@@ -13,7 +13,11 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from . import FanimationConfigEntry
-from .const import DOWNLIGHT_MAX
+from .const import (
+    CONF_DEFAULT_BRIGHTNESS,
+    DEFAULT_BRIGHTNESS_LAST_USED,
+    DOWNLIGHT_MAX,
+)
 from .entity import FanimationEntity
 
 if TYPE_CHECKING:
@@ -69,19 +73,29 @@ class FanimationLight(FanimationEntity, LightEntity):
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         """Return extra state attributes."""
-        return {
-            "rf_remote_sync": "State is verified before every command — RF remote changes are always respected",
-        }
+        attrs = super().extra_state_attributes
+        attrs["rf_remote_sync"] = "State is verified before every command — RF remote changes are always respected"
+        return attrs
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn on the light."""
         if ATTR_BRIGHTNESS in kwargs:
-            # Scale HA 0-255 → fan 0-100
+            # Explicit brightness from user — always use it
             fan_brightness = round(kwargs[ATTR_BRIGHTNESS] * DOWNLIGHT_MAX / 255)
             fan_brightness = max(1, min(fan_brightness, DOWNLIGHT_MAX))
         else:
-            # No brightness specified — restore last known brightness
-            fan_brightness = self._last_brightness
+            # Check for user-configured fixed default brightness
+            default_brightness = DEFAULT_BRIGHTNESS_LAST_USED
+            if self.coordinator.config_entry and self.coordinator.config_entry.options:
+                default_brightness = self.coordinator.config_entry.options.get(
+                    CONF_DEFAULT_BRIGHTNESS, DEFAULT_BRIGHTNESS_LAST_USED
+                )
+
+            if default_brightness > 0:
+                fan_brightness = default_brightness
+            else:
+                # 0 means "last_used" — current behavior
+                fan_brightness = self._last_brightness
 
         self._last_brightness = fan_brightness
         await self.coordinator.device.async_set_state(downlight=fan_brightness)
