@@ -36,11 +36,19 @@ The BTCR9 BLE protocol has been fully reverse-engineered and verified against re
 
 Three entities per fan, grouped under one device:
 
+![Fan entities in Home Assistant](docs/screenshots/fan-entities.png)
+
 | Entity | Type | Controls |
 |--------|------|----------|
 | Fan | `fan` | Speed (off/low/med/high) |
 | Downlight | `light` | On/off, brightness (0-100%) |
 | Sleep Timer | `number` | 0-360 minutes (turns off fan + light on expiry) |
+
+Per-fan options are configurable via **Settings → Devices → Configure** ([screenshot](docs/screenshots/options-flow.png)):
+- **Default turn-on speed** — Last used, Low, Medium, or High
+- **Default light brightness** — 0 = last used, 1-100 = fixed level
+- **Disconnect notification** — persistent alert on first BLE failure
+- **Unavailable threshold** — how many poll failures before entities go grey
 
 Works with ESP32 Bluetooth proxies — no special configuration needed.
 
