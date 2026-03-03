@@ -32,10 +32,19 @@ async def async_setup_entry(hass: HomeAssistant, entry: FanimationConfigEntry) -
     # Store coordinator on the config entry for platform access
     entry.runtime_data = coordinator
 
+    # Reload integration when options change
+    entry.async_on_unload(entry.add_update_listener(_async_options_updated))
+
     # Forward setup to entity platforms
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     return True
+
+
+async def _async_options_updated(hass: HomeAssistant, entry: FanimationConfigEntry) -> None:
+    """Reload the integration when options change."""
+    LOGGER.info("Options changed for %s — reloading", entry.title)
+    await hass.config_entries.async_reload(entry.entry_id)
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: FanimationConfigEntry) -> bool:

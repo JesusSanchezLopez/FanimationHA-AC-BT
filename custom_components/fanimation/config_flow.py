@@ -8,10 +8,36 @@ import voluptuous as vol
 from bleak_retry_connector import BleakClientWithServiceCache, establish_connection
 from homeassistant.components import bluetooth
 from homeassistant.components.bluetooth import BluetoothServiceInfoBleak
-from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
+from homeassistant.config_entries import ConfigEntry, ConfigFlow, ConfigFlowResult, OptionsFlowWithConfigEntry
 from homeassistant.const import CONF_MAC, CONF_NAME
+from homeassistant.data_entry_flow import section
+from homeassistant.helpers.selector import (
+    NumberSelector,
+    NumberSelectorConfig,
+    NumberSelectorMode,
+    SelectSelector,
+    SelectSelectorConfig,
+    SelectSelectorMode,
+)
 
-from .const import CHAR_NOTIFY, CHAR_WRITE, DOMAIN, LOGGER
+from .const import (
+    CHAR_NOTIFY,
+    CHAR_WRITE,
+    CONF_DEFAULT_BRIGHTNESS,
+    CONF_DEFAULT_SPEED,
+    CONF_NOTIFY_ON_DISCONNECT,
+    CONF_UNAVAILABLE_THRESHOLD,
+    DEFAULT_BRIGHTNESS_LAST_USED,
+    DEFAULT_NOTIFY_ON_DISCONNECT,
+    DEFAULT_SPEED_HIGH,
+    DEFAULT_SPEED_LAST_USED,
+    DEFAULT_SPEED_LOW,
+    DEFAULT_SPEED_MEDIUM,
+    DEFAULT_UNAVAILABLE_THRESHOLD,
+    DOMAIN,
+    LOGGER,
+    MAX_UNAVAILABLE_THRESHOLD,
+)
 
 SERVICE_UUID = "0000e000-0000-1000-8000-00805f9b34fb"
 
@@ -20,6 +46,11 @@ class FanimationConfigFlow(ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Fanimation BLE Ceiling Fan."""
 
     VERSION = 1
+
+    @staticmethod
+    def async_get_options_flow(config_entry: ConfigEntry) -> FanimationOptionsFlow:
+        """Return the options flow handler."""
+        return FanimationOptionsFlow(config_entry)
 
     def __init__(self) -> None:
         """Initialize the config flow."""
@@ -154,4 +185,90 @@ class FanimationConfigFlow(ConfigFlow, domain=DOMAIN):
                 }
             ),
             errors=errors,
+        )
+
+
+class FanimationOptionsFlow(OptionsFlowWithConfigEntry):
+    """Handle options for Fanimation BLE."""
+
+    async def async_step_init(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+        """Manage the options."""
+        if user_input is not None:
+            # Flatten sections into a single options dict
+            flat = {}
+            flat.update(user_input.get("defaults", {}))
+            flat.update(user_input.get("connection", {}))
+            # NumberSelector returns float; cast to int for type safety
+            if CONF_DEFAULT_BRIGHTNESS in flat:
+                flat[CONF_DEFAULT_BRIGHTNESS] = int(flat[CONF_DEFAULT_BRIGHTNESS])
+            if CONF_UNAVAILABLE_THRESHOLD in flat:
+                flat[CONF_UNAVAILABLE_THRESHOLD] = int(flat[CONF_UNAVAILABLE_THRESHOLD])
+            return self.async_create_entry(data=flat)
+
+        return self.async_show_form(
+            step_id="init",
+            data_schema=vol.Schema(
+                {
+                    vol.Required("defaults"): section(
+                        self._defaults_section_schema(),
+                        {"collapsed": False},
+                    ),
+                    vol.Required("connection"): section(
+                        self._connection_section_schema(),
+                        {"collapsed": False},
+                    ),
+                }
+            ),
+        )
+
+    def _defaults_section_schema(self) -> vol.Schema:
+        """Build schema for fan & light defaults section."""
+        return vol.Schema(
+            {
+                vol.Required(
+                    CONF_DEFAULT_SPEED,
+                    default=self.options.get(CONF_DEFAULT_SPEED, DEFAULT_SPEED_LAST_USED),
+                ): SelectSelector(
+                    SelectSelectorConfig(
+                        options=[
+                            DEFAULT_SPEED_LAST_USED,
+                            DEFAULT_SPEED_LOW,
+                            DEFAULT_SPEED_MEDIUM,
+                            DEFAULT_SPEED_HIGH,
+                        ],
+                        translation_key=CONF_DEFAULT_SPEED,
+                        mode=SelectSelectorMode.DROPDOWN,
+                    )
+                ),
+                vol.Required(
+                    CONF_DEFAULT_BRIGHTNESS,
+                    default=self.options.get(CONF_DEFAULT_BRIGHTNESS, DEFAULT_BRIGHTNESS_LAST_USED),
+                ): NumberSelector(
+                    NumberSelectorConfig(
+                        min=0, max=100, step=1, mode=NumberSelectorMode.SLIDER
+                    )
+                ),
+            }
+        )
+
+    def _connection_section_schema(self) -> vol.Schema:
+        """Build schema for connection & availability section."""
+        return vol.Schema(
+            {
+                vol.Required(
+                    CONF_NOTIFY_ON_DISCONNECT,
+                    default=self.options.get(CONF_NOTIFY_ON_DISCONNECT, DEFAULT_NOTIFY_ON_DISCONNECT),
+                ): bool,
+                vol.Required(
+                    CONF_UNAVAILABLE_THRESHOLD,
+                    default=self.options.get(CONF_UNAVAILABLE_THRESHOLD, DEFAULT_UNAVAILABLE_THRESHOLD),
+                ): NumberSelector(
+                    NumberSelectorConfig(
+                        min=0,
+                        max=MAX_UNAVAILABLE_THRESHOLD,
+                        step=1,
+                        mode=NumberSelectorMode.BOX,
+                    )
+                ),
+            }
         )

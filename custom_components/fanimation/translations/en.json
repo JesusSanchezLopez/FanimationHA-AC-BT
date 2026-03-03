@@ -10,7 +10,7 @@
       },
       "user": {
         "title": "Add Fanimation Ceiling Fan",
-        "description": "Enter the MAC address of your fan. You can find it using a BLE scanner app — look for a device named CeilingFan.",
+        "description": "Enter the MAC address of your fan. You can find it using a BLE scanner app \u2014 look for a device named CeilingFan.",
         "data": {
           "mac": "MAC address",
           "name": "Friendly name"
@@ -24,6 +24,49 @@
     "abort": {
       "already_configured": "This fan is already configured.",
       "not_fanimation": "This device does not appear to be a Fanimation fan (expected GATT characteristics not found)."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "description": "Configure default behavior and connection settings for this fan.",
+        "sections": {
+          "defaults": {
+            "name": "Fan & light defaults",
+            "description": "These settings control what happens when you turn on the fan or light without specifying a speed or brightness (e.g., tapping a toggle in your dashboard).",
+            "data": {
+              "default_speed": "Default turn-on speed",
+              "default_brightness": "Default light brightness"
+            },
+            "data_description": {
+              "default_speed": "The fan speed used when you turn the fan on without choosing a specific speed.",
+              "default_brightness": "The brightness used when you turn the light on without choosing a specific level. Set to 0 to use the last brightness."
+            }
+          },
+          "connection": {
+            "name": "Connection & availability",
+            "description": "These settings control how the integration behaves when it cannot reach the fan over Bluetooth. They are independent \u2014 notifications alert you immediately, while the unavailable threshold controls when dashboard cards go grey.",
+            "data": {
+              "notify_on_disconnect": "Notify when fan is unreachable",
+              "unavailable_threshold": "Mark unavailable after N poll failures"
+            },
+            "data_description": {
+              "notify_on_disconnect": "Send a persistent notification on the first connection failure. Automatically dismissed when the connection recovers.",
+              "unavailable_threshold": "After this many consecutive poll failures, entities are marked unavailable (grey card in dashboards). Each poll is approximately 5 minutes. Set to 0 to never mark unavailable. (12 \u2248 1 hour, 288 \u2248 1 day, 2016 \u2248 1 week)"
+            }
+          }
+        }
+      }
+    }
+  },
+  "selector": {
+    "default_speed": {
+      "options": {
+        "last_used": "Last used",
+        "low": "Low",
+        "medium": "Medium",
+        "high": "High"
+      }
     }
   },
   "entity": {
