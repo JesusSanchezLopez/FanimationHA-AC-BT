@@ -147,7 +147,7 @@ class FanimationConfigFlow(ConfigFlow, domain=DOMAIN):
             data_schema=vol.Schema(
                 {
                     vol.Required(CONF_NAME, default=self._discovered_name): str,
-                    vol.Required(CONF_SPEED_COUNT, default=SPEED_COUNT): vol.In([3, 6]),
+                    vol.Required(CONF_SPEED_COUNT, default=SPEED_COUNT): vol.In([3, 6, 16, 32]),
                 }
             ),
         )
