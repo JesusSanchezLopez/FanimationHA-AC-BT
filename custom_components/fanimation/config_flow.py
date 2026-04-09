@@ -182,12 +182,9 @@ class FanimationConfigFlow(ConfigFlow, domain=DOMAIN):
             step_id="user",
             data_schema=vol.Schema(
                 {
-                    vol.Required(CONF_MAC): vol.All(
-                        str,
-                        vol.Match(r"^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$"),
-                    ),
+                    vol.Required(CONF_MAC): vol.All(str),
                     vol.Required(CONF_NAME, default="Fanimation Fan"): str,
-                    vol.Required(CONF_SPEED_COUNT, default=SPEED_COUNT): vol.In([3, 6]),
+                    vol.Required(CONF_SPEED_COUNT, default=SPEED_COUNT): vol.In([3, 6, 16, 32]),
                 }
             ),
             errors=errors,
