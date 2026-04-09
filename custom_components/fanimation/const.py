@@ -53,6 +53,7 @@ CONF_DEFAULT_SPEED = "default_speed"
 CONF_DEFAULT_BRIGHTNESS = "default_brightness"
 CONF_NOTIFY_ON_DISCONNECT = "notify_on_disconnect"
 CONF_UNAVAILABLE_THRESHOLD = "unavailable_threshold"
+CONF_SPEED_COUNT = "speed_count"
 
 # Option defaults
 DEFAULT_SPEED_LAST_USED = "last_used"
